@@ -1,0 +1,4 @@
+0 Triste
+1 Feliz
+2 Enojado
+3 Neutro

@@ -1,0 +1,70 @@
+plugins {
+    alias(libs.plugins.android.application)
+    id("com.chaquo.python")
+    alias(libs.plugins.jetbrains.kotlin.android)
+}
+
+android {
+    namespace 'com.jhon.recofacial'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.jhon.recofacial"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters.addAll(["armeabi-v7a", "arm64-v8a", "x86", "x86_64"])
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    dependencies {
+        implementation fileTree(dir: 'libs', include: ['*.jar'])
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+}
+
+dependencies {
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.activity
+    implementation libs.constraintlayout
+    implementation libs.firebase.database
+    implementation libs.core.ktx
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+
+    implementation libs.opencv
+    // CameraX dependencies
+    implementation libs.camera.core
+    implementation libs.camera.camera2
+    implementation libs.camera.lifecycle
+    implementation libs.material
+    implementation libs.tensorflow.lite
+    implementation libs.tensorflow.lite.v280
+    implementation libs.tensorflow.lite.support
+    implementation libs.camera.view
+
+    implementation libs.javacv
+    implementation libs.javacpp
+
+    implementation libs.face.detection
+    implementation "com.google.mlkit:face-detection:16.1.6"
+}

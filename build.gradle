@@ -1,0 +1,23 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://dl.google.com/dl/android/maven2") }
+        maven { url = uri("https://repo.maven.apache.org/maven2") }
+        maven { url = uri("https://jitpack.io") }
+        maven { url = uri ("https://chaquo.com/maven") }
+        maven { url = uri ("https://chaquo.com") }
+        maven { url = uri ("https://jitpack.io") }
+        maven { url = uri ("https://opencv.jfrog.io/artifactory/opencv") }
+    }
+    dependencies {
+        classpath('com.android.tools.build:gradle:8.4.1')
+        classpath("com.chaquo.python:gradle:12.0.1")
+        classpath("com.chaquo.python:gradle:+" )
+    }
+}
+
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
+}

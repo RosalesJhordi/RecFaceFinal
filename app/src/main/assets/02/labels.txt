@@ -1,0 +1,7 @@
+Triste
+Feliz
+Neutral
+Disgustado
+Miedo
+Sorpresa
+Enojado

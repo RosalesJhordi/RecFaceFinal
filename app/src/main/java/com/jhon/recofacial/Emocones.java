@@ -2,6 +2,7 @@ package com.jhon.recofacial;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,16 +34,24 @@ import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.android.Utils;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -56,23 +66,33 @@ import java.util.concurrent.Executors;
 public class Emocones extends AppCompatActivity {
 
     private PreviewView previewView;
+    private FaceOverlayView faceOverlayView;
     private ExecutorService executor;
     private Interpreter tflite;
     private String[] labels;
     private TextView emotionTextView;
     private ImageAnalysis imageAnalysis;
-
+    private Button buttonFlipCamera;
     private static final int REQUEST_CAMERA_PERMISSION = 100;
-
+    private CascadeClassifier faceCascade;
+    private boolean isUsingFrontCamera = true;
     @OptIn(markerClass = ExperimentalGetImage.class)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emocones);
 
+        if (!OpenCVLoader.initDebug()) {
+            Log.e("OpenCV", "Unable to load OpenCV");
+        } else {
+            Log.d("OpenCV", "OpenCV loaded");
+        }
+
         previewView = findViewById(R.id.previewView);
+        faceOverlayView = findViewById(R.id.faceOverlayView);
         emotionTextView = findViewById(R.id.emotionTextView);
         executor = Executors.newSingleThreadExecutor();
+        buttonFlipCamera = findViewById(R.id.button_flip_camera);
 
         if (allPermissionsGranted()) {
             startCamera();
@@ -83,9 +103,38 @@ public class Emocones extends AppCompatActivity {
         try {
             tflite = new Interpreter(loadModelFile(), new Interpreter.Options());
             labels = loadLabels();
+            loadHaarCascade();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        buttonFlipCamera.setOnClickListener(v -> flipCamera());
+    }
+    private void flipCamera() {
+        isUsingFrontCamera = !isUsingFrontCamera;
+        startCamera();
+    }
+    private void loadHaarCascade() throws IOException {
+        InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_default);
+        File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+        File mCascadeFile = new File(cascadeDir, "haarcascade_frontalface_default.xml");
+        FileOutputStream os = new FileOutputStream(mCascadeFile);
+
+        byte[] buffer = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = is.read(buffer)) != -1) {
+            os.write(buffer, 0, bytesRead);
+        }
+        is.close();
+        os.close();
+
+        faceCascade = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+        if (faceCascade.empty()) {
+            Log.e("CascadeClassifier", "Failed to load cascade classifier");
+            faceCascade = null;
+        } else {
+            Log.d("CascadeClassifier", "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
+        }
+        cascadeDir.delete();
     }
 
     private boolean allPermissionsGranted() {
@@ -128,7 +177,7 @@ public class Emocones extends AppCompatActivity {
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT) // Usar cámara frontal
                 .build();
 
-        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+        imageAnalysis = new ImageAnalysis.Builder()
                 .setTargetResolution(new Size(224, 224))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
@@ -145,14 +194,26 @@ public class Emocones extends AppCompatActivity {
         if (mediaImage != null) {
             Bitmap bitmap = toBitmap(mediaImage);
             if (bitmap != null) {
+                // Detect faces in the bitmap
+                List<Rect> faceRects = detectFaces(bitmap);
+
+                // Set the detected face rectangles to the overlay view
+                runOnUiThread(() -> faceOverlayView.setFaceRects(faceRects));
+
+                // Ensure the bitmap is resized to the correct dimensions for the model input
                 Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 224, 224, true);
 
+                // Prepare the input tensor buffer
                 TensorBuffer inputBuffer = TensorBuffer.createFixedSize(new int[]{1, 224, 224, 3}, DataType.FLOAT32);
                 inputBuffer.loadBuffer(convertBitmapToByteBuffer(resizedBitmap));
 
+                // Prepare the output tensor buffer
                 TensorBuffer outputBuffer = TensorBuffer.createFixedSize(new int[]{1, labels.length}, DataType.FLOAT32);
+
+                // Run inference
                 tflite.run(inputBuffer.getBuffer(), outputBuffer.getBuffer().rewind());
 
+                // Process the output probabilities
                 float[] probabilities = outputBuffer.getFloatArray();
                 showResult(probabilities);
             }
@@ -173,9 +234,6 @@ public class Emocones extends AppCompatActivity {
         byte[] nv21 = new byte[ySize + uSize + vSize];
 
         yBuffer.get(nv21, 0, ySize);
-        vBuffer.get(nv21, ySize, vSize);
-        uBuffer.get(nv21, ySize + vSize, uSize);
-
         YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         yuvImage.compressToJpeg(new Rect(0, 0, image.getWidth(), image.getHeight()), 50, out);
@@ -191,16 +249,29 @@ public class Emocones extends AppCompatActivity {
         int[] intValues = new int[224 * 224];
         bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
 
-        int pixel = 0;
-        for (int i = 0; i < 224; ++i) {
-            for (int j = 0; j < 224; ++j) {
-                final int val = intValues[pixel++];
-                byteBuffer.putFloat(((val >> 16) & 0xFF) / 255.0f);
-                byteBuffer.putFloat(((val >> 8) & 0xFF) / 255.0f);
-                byteBuffer.putFloat((val & 0xFF) / 255.0f);
-            }
+        for (int pixelValue : intValues) {
+            byteBuffer.putFloat(((pixelValue >> 16) & 0xFF) / 255.0f);
+            byteBuffer.putFloat(((pixelValue >> 8) & 0xFF) / 255.0f);
+            byteBuffer.putFloat((pixelValue & 0xFF) / 255.0f);
         }
         return byteBuffer;
+    }
+
+    private List<Rect> detectFaces(Bitmap bitmap) {
+        Mat mat = new Mat();
+        Utils.bitmapToMat(bitmap, mat);
+        Mat gray = new Mat();
+        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY);
+
+        MatOfRect faces = new MatOfRect();
+        faceCascade.detectMultiScale(gray, faces);
+
+        List<Rect> faceRects = new ArrayList<>();
+        for (org.opencv.core.Rect face : faces.toArray()) {
+            faceRects.add(new Rect(face.x, face.y, face.width, face.height));
+        }
+
+        return faceRects;
     }
 
     private void showResult(float[] probabilities) {

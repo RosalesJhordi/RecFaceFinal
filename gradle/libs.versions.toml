@@ -1,9 +1,6 @@
 [versions]
 agp = "8.4.1"
 cameraCore = "1.3.3"
-dlib = "1.0.0"
-faceDetection = "17.0.2"
-javacv = "1.5.5"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -12,8 +9,6 @@ material = "1.12.0"
 activity = "1.9.0"
 constraintlayout = "2.1.4"
 opencv = "4.9.0"
-opencvAndroid = "4.9.0"
-opencvPlatform = "4.5.3-1.5.5"
 tensorflowLite = "2.8.0"
 tensorflowLiteSupport = "0.1.0"
 tensorflowLiteVersion = "2.8.0"
@@ -26,10 +21,6 @@ camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cam
 camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
 camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCore" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
-dlib = { module = "com.tzutalin.dlib-android-app:dlib", version.ref = "dlib" }
-face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
-javacpp = { module = "org.bytedeco:javacpp", version.ref = "javacv" }
-javacv = { module = "org.bytedeco:javacv", version.ref = "javacv" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -38,9 +29,6 @@ material = { group = "com.google.android.material", name = "material", version.r
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 opencv = { module = "org.opencv:opencv", version.ref = "opencv" }
-opencv-android = { module = "org.opencv:opencv-android", version.ref = "opencvAndroid" }
-opencv-platform = { module = "org.bytedeco:opencv-platform", version.ref = "opencvPlatform" }
-org-opencv-opencv-android = { module = "org.opencv:opencv-android", version.ref = "opencvAndroid" }
 tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflowLite" }
 tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLiteSupport" }
 tensorflow-lite-v280 = { module = "org.tensorflow:tensorflow-lite", version.ref = "tensorflowLiteVersion" }

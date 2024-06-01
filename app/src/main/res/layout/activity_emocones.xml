@@ -10,29 +10,58 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/emotionTextView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="emotions_will_appear_here"
-            android:textColor="@android:color/white"
-            android:textSize="30dp" />
+            android:orientation="vertical">
 
-        <androidx.camera.view.PreviewView
-            android:id="@+id/previewView"
+            <TextView
+                android:id="@+id/emotionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="16dp"
+                android:textColor="@android:color/white"
+                android:textSize="24sp" />
+
+            <androidx.camera.view.PreviewView
+                android:id="@+id/previewView"
+                android:layout_width="match_parent"
+                android:layout_height="500dp">
+
+            </androidx.camera.view.PreviewView>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/button_flip_camera"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="0dp">
+            android:layout_height="60dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="16dp"
+            android:backgroundTint="#00C853"
+            android:text="CAMBIAR CAMARA"
+            app:icon="@android:drawable/ic_popup_sync"
+            app:iconGravity="end"
+            app:iconSize="30dp" />
 
-        </androidx.camera.view.PreviewView>
+        <com.jhon.recofacial.FaceOverlayView
+            android:id="@+id/faceOverlayView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

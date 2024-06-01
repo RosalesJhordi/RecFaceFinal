@@ -99,6 +99,22 @@
             app:iconGravity="end"
             app:iconSize="25dp" />
 
+        <Button
+            android:id="@+id/btn_cap"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:backgroundTint="#DD2C00"
+            android:paddingLeft="50dp"
+            android:paddingEnd="50dp"
+            android:text="EMOCIONES 2"
+            android:textAlignment="viewStart"
+            android:textAllCaps="true"
+            android:textSize="15dp"
+            android:textStyle="bold"
+            app:icon="@android:drawable/ic_menu_camera"
+            app:iconGravity="end"
+            app:iconSize="25dp" />
+
         <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"

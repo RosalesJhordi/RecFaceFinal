@@ -2,6 +2,7 @@ package com.jhon.recofacial;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
@@ -25,8 +26,10 @@ public class MainActivity extends AppCompatActivity {
 
         Button btn_ob = findViewById(R.id.btn_ob);
         Button btn_add = findViewById(R.id.btn_add);
+        Button btn_cap = findViewById(R.id.btn_cap);
 
         btn_ob.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, Emocones.class)));
         btn_add.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, Registro.class)));
+        btn_cap.setOnClickListener(v -> startActivity(new Intent(MainActivity.this,Emocion.class)));
     }
 }

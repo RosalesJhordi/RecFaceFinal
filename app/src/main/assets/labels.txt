@@ -1,4 +1,7 @@
-Triste
-Neutro
-Sorprendido
-Feliz
+Enojado 😠
+Disgustado 😝
+Miedo 😱
+Feliz 😁
+Neutral 😐
+Triste 🥹
+Sorpresa 😮

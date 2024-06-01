@@ -26,6 +26,9 @@
         android:theme="@style/Theme.RecoFacial"
         tools:targetApi="31">
         <activity
+            android:name=".Emocion"
+            android:exported="false" />
+        <activity
             android:name=".Login"
             android:exported="false" />
         <activity
